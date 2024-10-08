@@ -1,0 +1,5 @@
+from .create_user_scheme import CreateUserScheme
+from .update_user_password_scheme import UpdateUserPasswordScheme
+from .update_user_personal_data_scheme import UpdateUserPersonalDataScheme
+from .update_user_preferences_scheme import UpdateUserPreferencesScheme
+from .user_out_scheme import UserOutScheme
