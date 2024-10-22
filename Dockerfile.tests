@@ -1,0 +1,15 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+COPY requirements.txt .
+COPY requirements-tests.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements-tests.txt
+
+COPY . .
+
+EXPOSE 8001
+
+CMD ["sh", "-c", "pytest --color=yes --code-highlight=yes --cov=. --cov-report html:/test_results && \
+    uvicorn web.main:app --host 0.0.0.0 --port 8001 --use-colors --reload"]
