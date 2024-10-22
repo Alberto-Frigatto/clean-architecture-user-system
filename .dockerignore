@@ -1,7 +1,4 @@
-tests/
-.coveragerc
 .gitignore
-pytest.ini
 README.md
 requirements-dev.txt
 LICENSE.md
