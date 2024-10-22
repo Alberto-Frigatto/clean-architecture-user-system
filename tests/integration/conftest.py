@@ -1,3 +1,4 @@
+import os
 from collections.abc import AsyncGenerator
 
 import pytest_asyncio
@@ -7,8 +8,7 @@ from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
 @pytest_asyncio.fixture
 async def motor_database() -> AsyncGenerator[AsyncIOMotorDatabase]:
     client: AsyncIOMotorClient = AsyncIOMotorClient(
-        'localhost',
-        27017,
+        os.getenv('MONGO_URI', 'mongodb://localhost:27017'),
         uuidRepresentation='standard',
         timeoutMS=5000,
     )
