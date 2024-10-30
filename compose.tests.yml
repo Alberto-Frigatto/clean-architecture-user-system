@@ -23,7 +23,7 @@ services:
 
   mongo_test:
     image: mongo:8.0
-    container_name: mongodb_test
+    container_name: frigatto_mongodb_test
     restart: always
     ports:
       - "27018:27017"
