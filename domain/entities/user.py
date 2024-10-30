@@ -1,5 +1,4 @@
 from datetime import date, datetime, timezone
-from uuid import UUID, uuid4
 
 from domain.value_objects import ColorTheme, Language
 
@@ -7,23 +6,23 @@ from domain.value_objects import ColorTheme, Language
 class User:
     def __init__(
         self,
+        id: str,
         username: str,
         email: str,
         birth_date: date,
         hashed_password: str,
         color_theme: ColorTheme,
         language: Language,
-        id: UUID | None = None,
         is_active: bool = True,
         created_at: datetime | None = None,
     ) -> None:
+        self._id: str = id
         self._username: str = username
         self._email: str = email
         self._birth_date: date = birth_date
         self._hashed_password: str = hashed_password
         self._color_theme: ColorTheme = color_theme
         self._language: Language = language
-        self._id: UUID = id or uuid4()
         self._is_active: bool = is_active
         self._created_at: datetime = created_at or datetime.now(timezone.utc)
 
@@ -71,7 +70,7 @@ class User:
         return self._language
 
     @property
-    def id(self) -> UUID:
+    def id(self) -> str:
         return self._id
 
     @property
