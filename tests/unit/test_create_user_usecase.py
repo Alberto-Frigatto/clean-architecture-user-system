@@ -12,13 +12,18 @@ from usecases.user import CreateUserUsecase
 
 
 @pytest.fixture
-def usecase(user_repository: Mock, password_manager: Mock) -> CreateUserUsecase:
-    return CreateUserUsecase(user_repository, password_manager)
+def usecase(
+    user_repository: Mock, password_manager: Mock, id_manager: Mock
+) -> CreateUserUsecase:
+    return CreateUserUsecase(user_repository, password_manager, id_manager)
 
 
 @pytest.mark.asyncio
 async def test_create_user_success(
-    usecase: CreateUserUsecase, user_repository: Mock, password_manager: Mock
+    usecase: CreateUserUsecase,
+    user_repository: Mock,
+    password_manager: Mock,
+    id_manager: Mock,
 ) -> None:
     dto: CreateUserDto = CreateUserDto(
         birth_date=date(year=1989, month=6, day=27),
@@ -34,6 +39,9 @@ async def test_create_user_success(
     hashed_password: str = 'new_password'
     password_manager.hash = Mock(return_value=hashed_password)
 
+    new_id: str = 'newid'
+    id_manager.generate = Mock(return_value=new_id)
+
     created_user: User = await usecase.execute(dto)
 
     assert created_user.birth_date == dto.birth_date
@@ -43,12 +51,13 @@ async def test_create_user_success(
     assert created_user.username == dto.username
     assert created_user.color_theme == dto.color_theme
     assert created_user.language == dto.language
-    assert isinstance(created_user.id, UUID)
+    assert created_user.id == new_id
     assert isinstance(created_user.created_at, datetime)
 
     user_repository.get_by_email.assert_called_once_with(dto.email)
     user_repository.create.assert_called_once_with(created_user)
     password_manager.hash.assert_called_once_with(dto.password)
+    id_manager.generate.assert_called_once()
 
 
 @pytest.mark.asyncio
