@@ -1,5 +1,3 @@
-from uuid import UUID
-
 from usecases.exceptions.base import AppException
 
 
@@ -9,7 +7,7 @@ class UserException:
             super().__init__(message=f'O usuário {email} já existe')
 
     class UserNotFound(AppException):
-        def __init__(self, user_id: UUID) -> None:
+        def __init__(self, user_id: str) -> None:
             super().__init__(message=f'O usuário {user_id} não foi encontrado')
 
     class UserIsDeactivated(AppException):
