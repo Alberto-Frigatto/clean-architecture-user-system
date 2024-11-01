@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from uuid import UUID
 
 
 class IJwtManager(ABC):
@@ -10,4 +9,4 @@ class IJwtManager(ABC):
     def decode_access_token(self, token: str) -> dict[str, str]: ...
 
     @abstractmethod
-    def get_sub(self, token: str) -> UUID: ...
+    def get_sub(self, token: str) -> str: ...
