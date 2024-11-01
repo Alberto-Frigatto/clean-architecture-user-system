@@ -1,7 +1,9 @@
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
 
+from adapters.id import UlidManager
 from adapters.repositories.user import MongoUserRepository
 from adapters.security import BcryptPasswordManager
+from ports.id import IIdManager
 from ports.repositories.user import IUserRepository
 from ports.security import IPasswordManager
 from usecases.auth import AuthenticateUserUsecase
@@ -63,6 +65,11 @@ def config_di(*, test: bool) -> None:
     Di.map(
         IPasswordManager,
         to=BcryptPasswordManager,
+        singleton=True,
+    )
+    Di.map(
+        IIdManager,
+        to=UlidManager,
         singleton=True,
     )
 
