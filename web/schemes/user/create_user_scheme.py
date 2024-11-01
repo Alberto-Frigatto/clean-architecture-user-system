@@ -1,10 +1,11 @@
 from datetime import date
-from typing import Annotated
+from typing import Annotated, Any
 
 from pydantic import EmailStr, StringConstraints, field_validator
 
 from domain.value_objects import ColorTheme, Language
 from usecases.dto.user import CreateUserDto
+from web.docs.examples.schemes.user_schemes import CreateUserScheme_example
 from web.schemes.base import InputScheme
 
 
@@ -73,3 +74,9 @@ class CreateUserScheme(InputScheme):
             color_theme=self.color_theme,
             language=self.language,
         )
+
+    model_config: dict[str, Any] = {  # type: ignore
+        'json_schema_extra': {
+            'examples': [CreateUserScheme_example],
+        }
+    }
