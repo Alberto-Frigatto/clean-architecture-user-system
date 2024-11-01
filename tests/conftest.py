@@ -1,36 +1,30 @@
 from collections.abc import Callable
 from datetime import date, datetime
 from typing import Any
-from uuid import UUID
 
 import pytest
 
+from adapters.id import Ulid
+
 
 @pytest.fixture
-def is_uuid() -> Callable[[Any], bool]:
-    def is_uuid_function(value: Any) -> bool:
+def is_ulid() -> Callable[[Any], bool]:
+    def is_ulid_function(value: Any) -> bool:
         try:
-            if isinstance(value, UUID):
-                return True
-
-            if not isinstance(value, str):
-                raise ValueError
-
-            uuid_obj = UUID(value, version=4)
-        except ValueError:
+            Ulid(value)
+            return True
+        except (ValueError, TypeError):
             return False
 
-        return str(uuid_obj) == value
-
-    return is_uuid_function
+    return is_ulid_function
 
 
 @pytest.fixture
-def as_uuid() -> Callable[[str], UUID]:
-    def as_uuid_function(value: str) -> UUID:
-        return UUID(value, version=4)
+def from_ulid_to_bytes() -> Callable[[str], bytes]:
+    def as_ulid_function(value: str) -> bytes:
+        return bytes(Ulid(value))
 
-    return as_uuid_function
+    return as_ulid_function
 
 
 @pytest.fixture
