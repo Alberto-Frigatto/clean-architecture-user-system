@@ -15,6 +15,6 @@ class OutScheme(ABC, BaseModel):
         data_with_renamed_keys: dict[str, Any] = {}
 
         for key, value in data.items():
-            data_with_renamed_keys[key[1:] if key.startswith('_') else key] = value
+            data_with_renamed_keys[key.removeprefix('_')] = value
 
         return data_with_renamed_keys
