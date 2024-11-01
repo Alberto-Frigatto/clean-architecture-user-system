@@ -11,20 +11,12 @@ from domain.value_objects import ColorTheme, Language
 
 
 @pytest_asyncio.fixture
-async def motor_client() -> AsyncGenerator[AsyncIOMotorClient]:
+async def motor_database() -> AsyncGenerator[AsyncIOMotorDatabase]:
     client: AsyncIOMotorClient = AsyncIOMotorClient(
         os.getenv('MONGO_URI'),
         timeoutMS=3000,
     )
-
-    yield client
-
-
-@pytest_asyncio.fixture
-async def motor_database(
-    motor_client: AsyncIOMotorClient,
-) -> AsyncGenerator[AsyncIOMotorDatabase]:
-    db: AsyncIOMotorDatabase = motor_client['test']
+    db: AsyncIOMotorDatabase = client['test']
 
     yield db
 
