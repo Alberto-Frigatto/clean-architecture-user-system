@@ -1,10 +1,10 @@
 from typing import Any, Sequence
 
-from web.exceptions.api.base import ApiError
+from web.exceptions.base import ApiException
 
 
 class ApiValidationException:
-    class InvalidDataSent(ApiError):
+    class InvalidDataSent(ApiException):
         def __init__(
             self, detail: Sequence[Any] | dict[str, Any] | None = None
         ) -> None:
