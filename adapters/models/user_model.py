@@ -1,16 +1,16 @@
 from datetime import date, datetime
 from typing import Annotated
-from uuid import UUID
 
 from pydantic import ConfigDict, Field, field_validator
 
+from adapters.id import Ulid
 from adapters.models.base import MongoModel
 from domain.entities import User
 from domain.value_objects import ColorTheme, Language
 
 
 class UserModel(MongoModel):
-    id: Annotated[UUID, Field(serialization_alias='_id')]
+    id: Annotated[bytes, Field(serialization_alias='_id')]
     username: str
     email: str
     hashed_password: str
@@ -21,6 +21,11 @@ class UserModel(MongoModel):
     created_at: datetime
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
+
+    @field_validator('id', mode='before')
+    @classmethod
+    def cast_id(cls, id: str | bytes) -> bytes:
+        return bytes(Ulid(id)) if isinstance(id, str) else id
 
     @field_validator('birth_date', mode='before')
     @classmethod
@@ -33,7 +38,7 @@ class UserModel(MongoModel):
 
     def to_entity(self) -> User:
         return User(
-            id=self.id,
+            id=str(Ulid(self.id)),
             birth_date=date(
                 year=self.birth_date.year,
                 month=self.birth_date.month,
