@@ -2,7 +2,6 @@ from collections.abc import Callable
 from datetime import date, datetime, timezone
 from http import HTTPStatus
 from typing import Any
-from uuid import UUID
 
 import pytest
 import pytest_asyncio
@@ -12,6 +11,7 @@ from motor.motor_asyncio import AsyncIOMotorCollection, AsyncIOMotorDatabase
 from adapters.models import UserModel
 from domain.entities import User
 from domain.value_objects import ColorTheme, Language
+from ports.id import IIdManager
 from ports.security import IPasswordManager
 from web.di import Di
 from web.security import IJwtManager
@@ -29,13 +29,16 @@ async def test_authenticate_user_success_CREATED(
     app_client: AsyncClient,
     users_collection: AsyncIOMotorCollection,
     subtract_years_from_today: Callable[[int], date],
-    is_uuid: Callable[[Any], bool],
-    as_uuid: Callable[[str], UUID],
+    is_ulid: Callable[[Any], bool],
+    from_ulid_to_bytes: Callable[[str], bytes],
 ) -> None:
     original_password: str = 'Windows#123'
     hashed_password: str = Di.get_raw(IPasswordManager).hash(original_password)
 
+    id_manager: IIdManager = Di.get_raw(IIdManager)
+
     user: User = User(
+        id=id_manager.generate(),
         username='Adriano Lombardi',
         birth_date=subtract_years_from_today(43),
         color_theme=ColorTheme.LIGHT,
@@ -69,10 +72,10 @@ async def test_authenticate_user_success_CREATED(
     assert exp_datetime > now
 
     assert isinstance((sub := decoded_token.get('sub')), str)
-    assert is_uuid(sub)
+    assert is_ulid(sub)
 
     result: dict[str, Any] | None = await users_collection.find_one(
-        {'_id': as_uuid(sub)}
+        {'_id': from_ulid_to_bytes(sub)}
     )
 
     assert isinstance(result, dict)
@@ -106,7 +109,7 @@ async def test_when_try_to_authenticate_user_with_invalid_credentials_returns_UN
 
 
 @pytest.mark.asyncio
-async def test_when_try_to_authenticate_user_with_invalid_email_returns_UNAUTHORIZED(
+async def test_when_try_to_authenticate_user_with_wrong_email_returns_UNAUTHORIZED(
     app_client: AsyncClient,
     is_datetime: Callable[[Any], bool],
     users_collection: AsyncIOMotorCollection,
@@ -115,7 +118,10 @@ async def test_when_try_to_authenticate_user_with_invalid_email_returns_UNAUTHOR
     original_password: str = 'Windows#123'
     hashed_password: str = Di.get_raw(IPasswordManager).hash(original_password)
 
+    id_manager: IIdManager = Di.get_raw(IIdManager)
+
     user: User = User(
+        id=id_manager.generate(),
         username='Adriano Lombardi',
         birth_date=subtract_years_from_today(43),
         color_theme=ColorTheme.LIGHT,
@@ -149,7 +155,7 @@ async def test_when_try_to_authenticate_user_with_invalid_email_returns_UNAUTHOR
 
 
 @pytest.mark.asyncio
-async def test_when_try_to_authenticate_user_with_invalid_password_returns_UNAUTHORIZED(
+async def test_when_try_to_authenticate_user_with_wrong_password_returns_UNAUTHORIZED(
     app_client: AsyncClient,
     is_datetime: Callable[[Any], bool],
     users_collection: AsyncIOMotorCollection,
@@ -157,7 +163,10 @@ async def test_when_try_to_authenticate_user_with_invalid_password_returns_UNAUT
 ) -> None:
     hashed_password: str = Di.get_raw(IPasswordManager).hash('Windows#123')
 
+    id_manager: IIdManager = Di.get_raw(IIdManager)
+
     user: User = User(
+        id=id_manager.generate(),
         username='Adriano Lombardi',
         birth_date=subtract_years_from_today(43),
         color_theme=ColorTheme.LIGHT,
@@ -200,7 +209,10 @@ async def test_when_try_to_authenticate_a_deactivated_user_returns_FORBIDDEN(
     original_password: str = 'Windows#123'
     hashed_password: str = Di.get_raw(IPasswordManager).hash(original_password)
 
+    id_manager: IIdManager = Di.get_raw(IIdManager)
+
     user: User = User(
+        id=id_manager.generate(),
         username='Adriano Lombardi',
         birth_date=subtract_years_from_today(43),
         color_theme=ColorTheme.LIGHT,
@@ -230,4 +242,44 @@ async def test_when_try_to_authenticate_a_deactivated_user_returns_FORBIDDEN(
         'kind': 'Forbidden',
         'message': f'O usuário {user.email} está desativado',
         'status': HTTPStatus.FORBIDDEN,
+    }
+
+
+@pytest.mark.asyncio
+async def test_when_try_to_authenticate_user_with_invalid_data_returns_UNAUTHORIZED(
+    app_client: AsyncClient,
+    is_datetime: Callable[[Any], bool],
+) -> None:
+    payload: dict[str, Any] = {
+        'username': 'email',
+        'password': 'senha',
+    }
+
+    response = await app_client.post('/auth/token/', data=payload)
+    response_data: dict[str, Any] = response.json()
+
+    assert response.status_code == HTTPStatus.BAD_REQUEST
+
+    assert is_datetime(response_data.pop('timestamp'))
+
+    assert response_data == {
+        'name': 'InvalidDataSent',
+        'scope': 'ApiValidationException',
+        'message': 'Os dados enviados são inválidos',
+        'detail': [
+            {
+                'type': 'value_error',
+                'loc': ['body', 'email'],
+                'input': 'email',
+                'message': 'value is not a valid email address: An email address must have an @-sign.',
+            },
+            {
+                'type': 'string_too_short',
+                'loc': ['body', 'password'],
+                'input': 'senha',
+                'message': 'String should have at least 8 characters',
+            },
+        ],
+        'kind': 'BadRequest',
+        'status': HTTPStatus.BAD_REQUEST,
     }
