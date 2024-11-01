@@ -1,5 +1,3 @@
-from uuid import UUID
-
 from fastapi import Depends
 
 from domain.entities import User
@@ -15,7 +13,7 @@ class AuthUtils:
         jwt_manager: IJwtManager = Di.inject(IJwtManager),
         usecase: GetActiveUserUsecase = Di.inject(GetActiveUserUsecase),
     ) -> User:
-        user_id: UUID = jwt_manager.get_sub(token)
+        user_id: str = jwt_manager.get_sub(token)
         user: User = await usecase.execute(user_id)
 
         return user
