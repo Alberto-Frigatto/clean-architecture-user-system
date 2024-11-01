@@ -1,15 +1,15 @@
-from web.exceptions.api.base import ApiError
+from web.exceptions.base import ApiException
 
 
 class ApiSecurityException:
-    class MissingJwt(ApiError):
+    class MissingJwt(ApiException):
         def __init__(self) -> None:
             super().__init__(message='Token JWT não fornecido')
 
-    class InvalidJwt(ApiError):
+    class InvalidJwt(ApiException):
         def __init__(self) -> None:
             super().__init__(message='Token JWT inválido')
 
-    class ExpiredJwt(ApiError):
+    class ExpiredJwt(ApiException):
         def __init__(self) -> None:
             super().__init__(message='Token JWT expirado')
