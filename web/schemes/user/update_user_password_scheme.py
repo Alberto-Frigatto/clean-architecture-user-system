@@ -1,8 +1,9 @@
-from typing import Annotated
+from typing import Annotated, Any
 
 from pydantic import StringConstraints, field_validator
 
 from usecases.dto.user import UpdateUserPasswordDto
+from web.docs.examples.schemes.user_schemes import UpdateUserPasswordScheme_example
 from web.schemes.base import InputScheme
 
 
@@ -54,3 +55,9 @@ class UpdateUserPasswordScheme(InputScheme):
             new_password=self.new_password,
             confirm_new_password=self.confirm_new_password,
         )
+
+    model_config: dict[str, Any] = {  # type: ignore
+        'json_schema_extra': {
+            'examples': [UpdateUserPasswordScheme_example],
+        }
+    }
