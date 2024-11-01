@@ -13,6 +13,7 @@ from motor.motor_asyncio import AsyncIOMotorCollection, AsyncIOMotorDatabase
 from adapters.models import UserModel
 from domain.entities import User
 from domain.value_objects import ColorTheme, Language
+from ports.id import IIdManager
 from ports.security import IPasswordManager
 from web.config.settings.base import Settings
 from web.di import Di
@@ -31,7 +32,10 @@ def user(subtract_years_from_today: Callable[[int], date]) -> User:
     original_password: str = 'Windows#123'
     hashed_password: str = Di.get_raw(IPasswordManager).hash(original_password)
 
+    id_manager: IIdManager = Di.get_raw(IIdManager)
+
     return User(
+        id=id_manager.generate(),
         username='Adriano Lombardi',
         birth_date=subtract_years_from_today(43),
         color_theme=ColorTheme.LIGHT,
@@ -45,8 +49,8 @@ def user(subtract_years_from_today: Callable[[int], date]) -> User:
 async def test_create_user_success_CREATED(
     app_client: AsyncClient,
     users_collection: AsyncIOMotorCollection,
-    is_uuid: Callable[[Any], bool],
-    as_uuid: Callable[[str], UUID],
+    is_ulid: Callable[[Any], bool],
+    from_ulid_to_bytes: Callable[[str], bytes],
     is_datetime: Callable[[Any], bool],
     normalize_datetime: Callable[[datetime], datetime],
     subtract_years_from_today: Callable[[int], date],
@@ -65,8 +69,8 @@ async def test_create_user_success_CREATED(
 
     assert response.status_code == HTTPStatus.CREATED
 
-    assert is_uuid(response_data.get('id'))
-    created_user_id: UUID = as_uuid(response_data.pop('id'))
+    assert is_ulid(response_data.get('id'))
+    created_user_id: bytes = from_ulid_to_bytes(response_data.pop('id'))
 
     assert is_datetime(response_data.get('created_at'))
     created_user_created_at = response_data.pop('created_at')
@@ -88,7 +92,7 @@ async def test_create_user_success_CREATED(
 
     created_user: User = UserModel.from_document(created_user_document).to_entity()
 
-    assert created_user.id == created_user_id
+    assert from_ulid_to_bytes(created_user.id) == created_user_id
     assert created_user.birth_date == date.fromisoformat(payload['birth_date'])
     assert created_user.color_theme == response_data['color_theme']
     assert normalize_datetime(created_user.created_at) == normalize_datetime(
@@ -319,7 +323,7 @@ async def test_when_try_to_get_user_info_with_jwt_token_with_non_existent_uuid_r
 ) -> None:
     await users_collection.insert_one(UserModel.from_entity(user).to_document())
 
-    non_existent_id: str = str(uuid4())
+    non_existent_id: str = Di.get_raw(IIdManager).generate()
     jwt_token: str = Di.get_raw(IJwtManager).create_access_token(non_existent_id)
 
     response = await app_client.get(
@@ -376,7 +380,10 @@ async def test_when_try_to_get_user_info_from_deactivated_user_returns_FORBIDDEN
     authorization_header: Callable[[str], dict[str, str]],
     subtract_years_from_today: Callable[[int], date],
 ) -> None:
+    id_manager: IIdManager = Di.get_raw(IIdManager)
+
     user: User = User(
+        id=id_manager.generate(),
         username='Adriano Lombardi',
         birth_date=subtract_years_from_today(43),
         color_theme=ColorTheme.LIGHT,
@@ -452,6 +459,7 @@ async def test_deactivate_user_success_NO_CONTENT(
     app_client: AsyncClient,
     users_collection: AsyncIOMotorCollection,
     authorization_header: Callable[[str], dict[str, str]],
+    from_ulid_to_bytes: Callable[[str], bytes],
     user: User,
 ) -> None:
     await users_collection.insert_one(UserModel.from_entity(user).to_document())
@@ -467,7 +475,7 @@ async def test_deactivate_user_success_NO_CONTENT(
     assert not response.content
 
     deactivated_user_document: dict[str, Any] | None = await users_collection.find_one(
-        {'_id': user.id}
+        {'_id': from_ulid_to_bytes(user.id)}
     )
 
     assert deactivated_user_document is not None
@@ -505,7 +513,7 @@ async def test_when_try_to_deactivate_user_without_jwt_token_returns_UNAUTHORIZE
 async def test_update_user_preferences_success_OK(
     app_client: AsyncClient,
     users_collection: AsyncIOMotorCollection,
-    subtract_years_from_today: Callable[[int], date],
+    from_ulid_to_bytes: Callable[[str], bytes],
     authorization_header: Callable[[str], dict[str, str]],
     is_datetime: Callable[[Any], bool],
     user: User,
@@ -541,7 +549,7 @@ async def test_update_user_preferences_success_OK(
     }
 
     updated_user_document: dict[str, Any] | None = await users_collection.find_one(
-        {'_id': user.id}
+        {'_id': from_ulid_to_bytes(user.id)}
     )
 
     assert updated_user_document is not None
@@ -585,6 +593,7 @@ async def test_update_user_personal_data_success_OK(
     users_collection: AsyncIOMotorCollection,
     subtract_years_from_today: Callable[[int], date],
     authorization_header: Callable[[str], dict[str, str]],
+    from_ulid_to_bytes: Callable[[str], bytes],
     is_datetime: Callable[[Any], bool],
     user: User,
 ) -> None:
@@ -620,7 +629,7 @@ async def test_update_user_personal_data_success_OK(
     }
 
     updated_user_document: dict[str, Any] | None = await users_collection.find_one(
-        {'_id': user.id}
+        {'_id': from_ulid_to_bytes(user.id)}
     )
 
     assert updated_user_document is not None
@@ -774,6 +783,7 @@ async def test_update_user_password_success_OK(
     users_collection: AsyncIOMotorCollection,
     authorization_header: Callable[[str], dict[str, str]],
     is_datetime: Callable[[Any], bool],
+    from_ulid_to_bytes: Callable[[str], bytes],
     user: User,
 ) -> None:
     await users_collection.insert_one(UserModel.from_entity(user).to_document())
@@ -808,7 +818,7 @@ async def test_update_user_password_success_OK(
     }
 
     updated_user_document: dict[str, Any] | None = await users_collection.find_one(
-        {'_id': user.id}
+        {'_id': from_ulid_to_bytes(user.id)}
     )
 
     assert updated_user_document is not None
