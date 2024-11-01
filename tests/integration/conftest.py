@@ -11,21 +11,26 @@ from domain.value_objects import ColorTheme, Language
 
 
 @pytest_asyncio.fixture
-async def motor_database() -> AsyncGenerator[AsyncIOMotorDatabase]:
+async def motor_client() -> AsyncGenerator[AsyncIOMotorClient]:
     client: AsyncIOMotorClient = AsyncIOMotorClient(
-        os.getenv('MONGO_URI', 'mongodb://localhost:27017'),
-        uuidRepresentation='standard',
-        timeoutMS=5000,
+        os.getenv('MONGO_URI'),
+        timeoutMS=3000,
     )
-    db: AsyncIOMotorDatabase = client['test']
+
+    yield client
+
+
+@pytest_asyncio.fixture
+async def motor_database(
+    motor_client: AsyncIOMotorClient,
+) -> AsyncGenerator[AsyncIOMotorDatabase]:
+    db: AsyncIOMotorDatabase = motor_client['test']
 
     yield db
 
     collections: list[str] = await db.list_collection_names()
     for collection_name in collections:
         await db.drop_collection(collection_name)
-
-    client.close()
 
 
 @pytest.fixture
