@@ -22,7 +22,7 @@ class HttpError:
         self._detail: Sequence[Any] | dict[str, Any] | None = getattr(
             error, 'detail', None
         )
-        self._kind: str = self.__class__.__name__
+        self._type: str = self.__class__.__name__
         self._status: int = status
         self._headers: dict[str, str] | None = headers
         self._timestamp: str = datetime.now(timezone.utc).isoformat()
