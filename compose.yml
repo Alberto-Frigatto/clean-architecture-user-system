@@ -1,0 +1,33 @@
+services:
+  app:
+    build: .
+    container_name: frigatto_app
+    ports:
+      - "8000:8000"
+    environment:
+      - ENV=production
+      - SECRET_KEY=${SECRET_KEY}
+      - MONGO_URI=mongodb://mongo:27017
+    depends_on:
+      - mongo
+    networks:
+      - frigatto_app_production
+
+  mongo:
+    image: mongo:8.0
+    container_name: frigatto_mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - frigatto_app_mongo_data:/data/db
+    command: mongod --quiet --logpath /dev/null
+    networks:
+      - frigatto_app_production
+
+volumes:
+  frigatto_app_mongo_data:
+
+networks:
+  frigatto_app_production:
+    driver: bridge

@@ -1,10 +1,12 @@
 from datetime import date
-from typing import Annotated
+from typing import Annotated, Any
 
 from pydantic import EmailStr, StringConstraints, field_validator
 
 from usecases.dto.user import UpdateUserPersonalDataDto
+from web.docs.examples.schemes.user_schemes import UpdateUserPersonalDataScheme_example
 from web.schemes.base import InputScheme
+from web.schemes.exceptions.user import UserSchemeException
 
 
 class UpdateUserPersonalDataScheme(InputScheme):
@@ -35,7 +37,7 @@ class UpdateUserPersonalDataScheme(InputScheme):
         diff_in_years: float = diff_in_days / 365.25
 
         if diff_in_years >= 100:
-            raise ValueError('A data de nascimento é inválida')
+            raise UserSchemeException.InvalidBirthDate()
 
         return birth_date
 
@@ -45,3 +47,9 @@ class UpdateUserPersonalDataScheme(InputScheme):
             email=self.email,
             birth_date=self.birth_date,
         )
+
+    model_config: dict[str, Any] = {  # type: ignore
+        'json_schema_extra': {
+            'examples': [UpdateUserPersonalDataScheme_example],
+        }
+    }

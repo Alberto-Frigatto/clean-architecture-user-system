@@ -3,21 +3,9 @@ from typing import Any
 
 import pytest
 
+from adapters.id import Ulid
 from adapters.models import UserModel
 from domain.entities import User
-from domain.value_objects import ColorTheme, Language
-
-
-@pytest.fixture
-def user() -> User:
-    return User(
-        birth_date=date(year=2005, month=2, day=27),
-        email='alberto@gmail.com',
-        hashed_password='hashedpassword',
-        username='Alberto Frigatto',
-        color_theme=ColorTheme.LIGHT,
-        language=Language.EN_UK,
-    )
 
 
 @pytest.fixture
@@ -28,7 +16,7 @@ def user_document(user: User) -> dict[str, Any]:
 def test_create_UserModel_from_User_success(user: User):
     user_model: UserModel = UserModel(**user.__dict__)
 
-    assert user_model.id == user.id
+    assert user_model.id == bytes(Ulid(user.id))
     assert user_model.birth_date == datetime(
         year=user.birth_date.year,
         month=user.birth_date.month,
@@ -48,7 +36,7 @@ def test_map_UserModel_from_User_to_document_success(user: User):
     user_document: dict[str, Any] = user_model.to_document()
 
     assert isinstance(user_document, dict)
-    assert user_document.get('_id') == user.id
+    assert user_document.get('_id') == bytes(Ulid(user.id))
     assert user_document.get('birth_date') == datetime(
         year=user.birth_date.year,
         month=user.birth_date.month,
@@ -69,7 +57,7 @@ def test_map_UserModel_from_document_to_User_success(user_document: dict[str, An
 
     assert isinstance(user_entity, User)
 
-    assert user_entity.id == user_document.get('_id')
+    assert user_entity.id == str(Ulid(user_document.get('_id')))
 
     birth_date: datetime | None = user_document.get('birth_date')
     assert birth_date is not None

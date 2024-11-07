@@ -44,7 +44,7 @@ async def test_when_try_to_get_an_active_user_that_does_not_exist_raises_UserNot
 ) -> None:
     user_repository.get_by_id = AsyncMock(return_value=None)
 
-    user_id: UUID = uuid4()
+    user_id: str = 'newid'
 
     with pytest.raises(UserException.UserNotFound):
         await usecase.execute(user_id)

@@ -1,0 +1,36 @@
+services:
+  app_test:
+    build:
+      context: .
+      dockerfile: Dockerfile.tests
+    container_name: frigatto_app_test
+    ports:
+      - "8001:8001"
+    environment:
+      - ENV=test
+      - MONGO_URI=mongodb://mongo_test:27017
+    depends_on:
+      - mongo_test
+    volumes:
+      - ./htmlcov:/test_results
+    networks:
+      - frigatto_app_test
+    develop:
+      watch:
+        - action: sync+restart
+          path: .
+          target: /app
+
+  mongo_test:
+    image: mongo:8.0
+    container_name: frigatto_mongodb_test
+    restart: always
+    ports:
+      - "27018:27017"
+    command: mongod --quiet --logpath /dev/null
+    networks:
+      - frigatto_app_test
+
+networks:
+  frigatto_app_test:
+    driver: bridge

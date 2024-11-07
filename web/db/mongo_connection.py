@@ -8,7 +8,6 @@ class MongoConnection:
     def get_client(cls, settings: Settings) -> AsyncIOMotorClient:
         return AsyncIOMotorClient(
             settings.mongo_uri,
-            uuidRepresentation='standard',
             timeoutMS=3000,
         )
 

@@ -1,11 +1,11 @@
 from datetime import datetime, timedelta, timezone
-from uuid import UUID
 
 import jwt
 from jwt.exceptions import ExpiredSignatureError
 
+from adapters.id import Ulid
 from web.config.settings.base import Settings
-from web.exceptions.api import ApiSecurityException
+from web.exceptions import ApiSecurityException
 from web.security import IJwtManager
 
 
@@ -37,10 +37,11 @@ class PyJwtManager(IJwtManager):
         except ExpiredSignatureError as e:
             raise ApiSecurityException.ExpiredJwt() from e
 
-    def get_sub(self, token: str) -> UUID:
+    def get_sub(self, token: str) -> str:
         decoded_token: dict[str, str] = self.decode_access_token(token)
 
         try:
-            return UUID(decoded_token['sub'], version=4)
-        except ValueError as e:
+            Ulid(decoded_token['sub'])
+            return decoded_token['sub']
+        except (ValueError, TypeError) as e:
             raise ApiSecurityException.InvalidJwt() from e

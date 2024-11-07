@@ -1,6 +1,7 @@
 from datetime import date
 
 from domain.entities import User
+from ports.id import IIdManager
 from ports.repositories.user import IUserRepository
 from ports.security import IPasswordManager
 from usecases.dto.user import CreateUserDto
@@ -12,9 +13,11 @@ class CreateUserUsecase:
         self,
         repository: IUserRepository,
         password_manager: IPasswordManager,
+        id_manager: IIdManager,
     ) -> None:
         self._repository: IUserRepository = repository
         self._password_manager: IPasswordManager = password_manager
+        self._id_manager: IIdManager = id_manager
 
     async def execute(self, dto: CreateUserDto) -> User:
         if await self._is_user_already_created(dto.email):
@@ -26,6 +29,7 @@ class CreateUserUsecase:
         hashed_password: str = self._password_manager.hash(dto.password)
 
         user: User = User(
+            id=self._id_manager.generate(),
             birth_date=dto.birth_date,
             email=dto.email,
             hashed_password=hashed_password,

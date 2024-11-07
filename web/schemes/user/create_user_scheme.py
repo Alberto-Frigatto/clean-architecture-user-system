@@ -1,11 +1,13 @@
 from datetime import date
-from typing import Annotated
+from typing import Annotated, Any
 
 from pydantic import EmailStr, StringConstraints, field_validator
 
 from domain.value_objects import ColorTheme, Language
 from usecases.dto.user import CreateUserDto
+from web.docs.examples.schemes.user_schemes import CreateUserScheme_example
 from web.schemes.base import InputScheme
+from web.schemes.exceptions.user import UserSchemeException
 
 
 class CreateUserScheme(InputScheme):
@@ -48,7 +50,7 @@ class CreateUserScheme(InputScheme):
         has_special = any(char in "!@#$%&*()_+=-,.:;?/\\|" for char in password)
 
         if not all((has_uppercase, has_lowercase, has_digit, has_special)):
-            raise ValueError('A senha não tem os caracteres necessários')
+            raise UserSchemeException.PasswordHasNoNecessaryChars()
 
         return password
 
@@ -60,7 +62,7 @@ class CreateUserScheme(InputScheme):
         diff_in_years: float = diff_in_days / 365.25
 
         if diff_in_years >= 100:
-            raise ValueError('A data de nascimento é inválida')
+            raise UserSchemeException.InvalidBirthDate()
 
         return birth_date
 
@@ -73,3 +75,9 @@ class CreateUserScheme(InputScheme):
             color_theme=self.color_theme,
             language=self.language,
         )
+
+    model_config: dict[str, Any] = {  # type: ignore
+        'json_schema_extra': {
+            'examples': [CreateUserScheme_example],
+        }
+    }

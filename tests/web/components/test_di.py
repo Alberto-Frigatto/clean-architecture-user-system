@@ -13,7 +13,7 @@ def di_container() -> type[Di]:
     return deepcopy(Di)
 
 
-def test_when_map_a_interface_to_a_class_as_not_singleton_and_inject_it_the_ids_from_objects_are_not_equal(
+def test_when_map_an_interface_to_a_class_as_not_singleton_and_inject_it_the_ids_from_objects_are_not_equal(
     di_container: type[Di],
 ) -> None:
     class MyInterface(ABC):
@@ -39,7 +39,7 @@ def test_when_map_a_interface_to_a_class_as_not_singleton_and_inject_it_the_ids_
     assert id(dependency_1()) != id(dependency_2())
 
 
-def test_when_map_a_interface_to_a_class_as_singleton_and_inject_it_the_ids_from_objects_are_equal(
+def test_when_map_an_interface_to_a_class_as_singleton_and_inject_it_the_ids_from_objects_are_equal(
     di_container: type[Di],
 ) -> None:
     class MyInterface(ABC):
@@ -65,7 +65,7 @@ def test_when_map_a_interface_to_a_class_as_singleton_and_inject_it_the_ids_from
     assert id(dependency_1()) == id(dependency_2())
 
 
-def test_when_map_a_interface_to_an_object_as_not_singleton_and_inject_it_the_ids_from_objects_are_equal(
+def test_when_map_an_interface_to_an_object_as_not_singleton_and_inject_it_the_ids_from_objects_are_equal(
     di_container: type[Di],
 ) -> None:
     class MyInterface(ABC):
@@ -91,7 +91,7 @@ def test_when_map_a_interface_to_an_object_as_not_singleton_and_inject_it_the_id
     assert id(dependency_1()) == id(dependency_2())
 
 
-def test_when_map_a_interface_to_an_object_as_singleton_and_inject_it_the_ids_from_objects_are_equal(
+def test_when_map_an_interface_to_an_object_as_singleton_and_inject_it_the_ids_from_objects_are_equal(
     di_container: type[Di],
 ) -> None:
     class MyInterface(ABC):
@@ -117,7 +117,7 @@ def test_when_map_a_interface_to_an_object_as_singleton_and_inject_it_the_ids_fr
     assert id(dependency_1()) == id(dependency_2())
 
 
-def test_when_map_a_interface_to_a_method_as_not_singleton_and_inject_it_the_ids_from_objects_are_not_equal(
+def test_when_map_an_interface_to_a_method_as_not_singleton_and_inject_it_the_ids_from_objects_are_not_equal(
     di_container: type[Di],
 ) -> None:
     class MyInterface(ABC):
@@ -148,7 +148,7 @@ def test_when_map_a_interface_to_a_method_as_not_singleton_and_inject_it_the_ids
     assert id(dependency_1()) != id(dependency_2())
 
 
-def test_when_map_a_interface_to_a_method_as_singleton_and_inject_it_the_ids_from_objects_are_equal(
+def test_when_map_an_interface_to_a_method_as_singleton_and_inject_it_the_ids_from_objects_are_equal(
     di_container: type[Di],
 ) -> None:
     class MyInterface(ABC):
@@ -211,7 +211,7 @@ def test_inject_a_dependency_with_sub_dependencies(
     assert isinstance(dependency_obj.outer_dependency.inner_dependency, InnerDependency)
 
 
-def test_when_map_a_interface_to_a_class_as_not_singleton_and_get_raw_it_the_ids_from_objects_are_not_equal(
+def test_when_map_an_interface_to_a_class_as_not_singleton_and_get_raw_it_the_ids_from_objects_are_not_equal(
     di_container: type[Di],
 ) -> None:
     class MyInterface(ABC):
@@ -233,7 +233,7 @@ def test_when_map_a_interface_to_a_class_as_not_singleton_and_get_raw_it_the_ids
     assert id(result_1) != id(result_2)
 
 
-def test_when_map_a_interface_to_a_class_as_singleton_and_get_raw_it_the_ids_from_objects_are_equal(
+def test_when_map_an_interface_to_a_class_as_singleton_and_get_raw_it_the_ids_from_objects_are_equal(
     di_container: type[Di],
 ) -> None:
     class MyInterface(ABC):
@@ -255,7 +255,7 @@ def test_when_map_a_interface_to_a_class_as_singleton_and_get_raw_it_the_ids_fro
     assert id(result_1) == id(result_2)
 
 
-def test_when_map_a_interface_to_an_object_as_not_singleton_and_get_raw_it_the_ids_from_objects_are_equal(
+def test_when_map_an_interface_to_an_object_as_not_singleton_and_get_raw_it_the_ids_from_objects_are_equal(
     di_container: type[Di],
 ) -> None:
     class MyInterface(ABC):
@@ -277,7 +277,7 @@ def test_when_map_a_interface_to_an_object_as_not_singleton_and_get_raw_it_the_i
     assert id(result_1) == id(result_2)
 
 
-def test_when_map_a_interface_to_an_object_as_singleton_and_get_raw_it_the_ids_from_objects_are_equal(
+def test_when_map_an_interface_to_an_object_as_singleton_and_get_raw_it_the_ids_from_objects_are_equal(
     di_container: type[Di],
 ) -> None:
     class MyInterface(ABC):
@@ -299,7 +299,7 @@ def test_when_map_a_interface_to_an_object_as_singleton_and_get_raw_it_the_ids_f
     assert id(result_1) == id(result_2)
 
 
-def test_when_map_a_interface_to_a_method_as_not_singleton_and_get_raw_it_the_ids_from_objects_are_not_equal(
+def test_when_map_an_interface_to_a_method_as_not_singleton_and_get_raw_it_the_ids_from_objects_are_not_equal(
     di_container: type[Di],
 ) -> None:
     class MyInterface(ABC):
@@ -326,7 +326,7 @@ def test_when_map_a_interface_to_a_method_as_not_singleton_and_get_raw_it_the_id
     assert id(result_1) != id(result_2)
 
 
-def test_when_map_a_interface_to_a_method_as_singleton_and_get_raw_it_the_ids_from_objects_are_equal(
+def test_when_map_an_interface_to_a_method_as_singleton_and_get_raw_it_the_ids_from_objects_are_equal(
     di_container: type[Di],
 ) -> None:
     class MyInterface(ABC):

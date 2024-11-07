@@ -11,6 +11,7 @@ from usecases.user import (
     UpdateUserPreferencesUsecase,
 )
 from web.di import Di
+from web.docs.endpoints.user import user_endpoints
 from web.schemes.user import (
     CreateUserScheme,
     UpdateUserPasswordScheme,
@@ -25,7 +26,11 @@ class UserController:
     router: APIRouter = APIRouter(prefix='/users', tags=['Users'])
 
     @staticmethod
-    @router.post('/', status_code=HTTPStatus.CREATED)
+    @router.post(
+        '/',
+        status_code=HTTPStatus.CREATED,
+        description=user_endpoints.create_user_description,
+    )
     async def create_user(
         user: CreateUserScheme,
         usecase: CreateUserUsecase = Di.inject(CreateUserUsecase),
@@ -35,14 +40,22 @@ class UserController:
         return UserOutScheme.from_entity(new_user)
 
     @staticmethod
-    @router.get('/me', status_code=HTTPStatus.OK)
+    @router.get(
+        '/me',
+        status_code=HTTPStatus.OK,
+        description=user_endpoints.get_user_info_description,
+    )
     async def get_user_info(
         auth_user: User = Depends(AuthUtils.get_auth_user),
     ) -> UserOutScheme:
         return UserOutScheme.from_entity(auth_user)
 
     @staticmethod
-    @router.patch('/me/deactivate', status_code=HTTPStatus.NO_CONTENT)
+    @router.patch(
+        '/me/deactivate',
+        status_code=HTTPStatus.NO_CONTENT,
+        description=user_endpoints.deactivate_user_description,
+    )
     async def deactivate_user(
         auth_user: User = Depends(AuthUtils.get_auth_user),
         usecase: DeactivateUserUsecase = Di.inject(DeactivateUserUsecase),
@@ -50,7 +63,11 @@ class UserController:
         await usecase.execute(auth_user)
 
     @staticmethod
-    @router.patch('/me/preferences', status_code=HTTPStatus.OK)
+    @router.patch(
+        '/me/preferences',
+        status_code=HTTPStatus.OK,
+        description=user_endpoints.update_user_preferences_description,
+    )
     async def update_user_preferences(
         preferences: UpdateUserPreferencesScheme,
         auth_user: User = Depends(AuthUtils.get_auth_user),
@@ -61,7 +78,11 @@ class UserController:
         return UserOutScheme.from_entity(updated_user)
 
     @staticmethod
-    @router.patch('/me', status_code=HTTPStatus.OK)
+    @router.patch(
+        '/me',
+        status_code=HTTPStatus.OK,
+        description=user_endpoints.update_user_personal_data_description,
+    )
     async def update_user_personal_data(
         personal_data: UpdateUserPersonalDataScheme,
         auth_user: User = Depends(AuthUtils.get_auth_user),
@@ -74,7 +95,11 @@ class UserController:
         return UserOutScheme.from_entity(updated_user)
 
     @staticmethod
-    @router.patch('/me/password', status_code=HTTPStatus.OK)
+    @router.patch(
+        '/me/password',
+        status_code=HTTPStatus.OK,
+        description=user_endpoints.update_user_password_description,
+    )
     async def update_user_password(
         password_data: UpdateUserPasswordScheme,
         auth_user: User = Depends(AuthUtils.get_auth_user),

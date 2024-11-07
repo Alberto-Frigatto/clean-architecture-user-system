@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from uuid import UUID
 
 from domain.entities import User
 
@@ -12,7 +11,7 @@ class IUserRepository(ABC):
     async def get_by_email(self, email: str) -> User | None: ...
 
     @abstractmethod
-    async def get_by_id(self, user_id: UUID) -> User | None: ...
+    async def get_by_id(self, user_id: str) -> User | None: ...
 
     @abstractmethod
     async def update(self, user: User) -> None: ...
