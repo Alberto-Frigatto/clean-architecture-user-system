@@ -5,6 +5,7 @@ from pydantic import StringConstraints, field_validator
 from usecases.dto.user import UpdateUserPasswordDto
 from web.docs.examples.schemes.user_schemes import UpdateUserPasswordScheme_example
 from web.schemes.base import InputScheme
+from web.schemes.exceptions.user import UserSchemeException
 
 
 class UpdateUserPasswordScheme(InputScheme):
@@ -45,7 +46,7 @@ class UpdateUserPasswordScheme(InputScheme):
         has_special = any(char in "!@#$%&*()_+=-,.:;?/\\|" for char in password)
 
         if not all((has_uppercase, has_lowercase, has_digit, has_special)):
-            raise ValueError('A senha não tem os caracteres necessários')
+            raise UserSchemeException.PasswordHasNoNecessaryChars()
 
         return password
 
