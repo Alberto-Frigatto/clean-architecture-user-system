@@ -11,7 +11,8 @@ async def test_when_try_to_access_a_non_existent_endpoint_returns_NOT_FOUND(
     app_client: AsyncClient,
     is_datetime: Callable[[Any], bool],
 ) -> None:
-    response = await app_client.get('/non/existent')
+    endpoint: str = '/non/existent'
+    response = await app_client.get(endpoint)
     response_data: dict[str, Any] = response.json()
 
     assert response.status_code == HTTPStatus.NOT_FOUND
@@ -21,8 +22,8 @@ async def test_when_try_to_access_a_non_existent_endpoint_returns_NOT_FOUND(
     assert response_data == {
         'name': 'EndpointNotFound',
         'scope': 'ApiGeneralException',
-        'kind': 'NotFound',
-        'message': 'O endpoint /non/existent não existe',
+        'type': 'NotFound',
+        'message': f'The endpoint {endpoint} doesn\'t exists',
         'status': HTTPStatus.NOT_FOUND,
     }
 
@@ -32,7 +33,9 @@ async def test_when_try_to_access_an_endpoint_with_method_not_allowed_returns_ME
     app_client: AsyncClient,
     is_datetime: Callable[[Any], bool],
 ) -> None:
-    response = await app_client.get('/users/')
+    method: str = 'GET'
+    endpoint: str = '/users/'
+    response = await getattr(app_client, method.lower())(endpoint)
     response_data: dict[str, Any] = response.json()
 
     assert response.status_code == HTTPStatus.METHOD_NOT_ALLOWED
@@ -40,9 +43,9 @@ async def test_when_try_to_access_an_endpoint_with_method_not_allowed_returns_ME
     assert is_datetime(response_data.pop('timestamp'))
 
     assert response_data == {
-        "name": "MethodNotAllowed",
-        "scope": "ApiGeneralException",
-        "message": "O método GET não é permitido para o endpoint /users/",
-        "kind": "MethodNotAllowed",
+        'name': 'MethodNotAllowed',
+        'scope': 'ApiGeneralException',
+        'message': f'The {method} method isn\'t allowed for the endpoint {endpoint}',
+        'type': 'MethodNotAllowed',
         'status': HTTPStatus.METHOD_NOT_ALLOWED,
     }
