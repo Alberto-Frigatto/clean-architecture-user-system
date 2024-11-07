@@ -4,32 +4,34 @@ from usecases.exceptions.base import AppException
 class UserException:
     class UserAlreadyExists(AppException):
         def __init__(self, email: str) -> None:
-            super().__init__(message=f'O usuário {email} já existe')
+            super().__init__(message=f'The user {email} already exists')
 
     class UserNotFound(AppException):
         def __init__(self, user_id: str) -> None:
-            super().__init__(message=f'O usuário {user_id} não foi encontrado')
+            super().__init__(message=f'The user {user_id} wasn\'t found')
 
     class UserIsDeactivated(AppException):
         def __init__(self, email: str) -> None:
-            super().__init__(message=f'O usuário {email} está desativado')
+            super().__init__(message=f'The user {email} is deactivated')
 
     class NewPasswordCantBeSameAsOld(AppException):
         def __init__(self, email: str) -> None:
             super().__init__(
-                message=f'A nova senha do usuário {email} não pode ser igual à antiga'
+                message=f'The user\'s new password {email} can\'t be the same as the old one'
             )
 
     class NewPasswordConfirmationMismatch(AppException):
         def __init__(self) -> None:
             super().__init__(
-                message='A confirmação da nova senha não corresponde à senha fornecida'
+                message='New password confirmation doesn\'t match the password provided'
             )
 
     class OldPasswordDoesntMatch(AppException):
         def __init__(self) -> None:
-            super().__init__(message='A senha antiga fornecida não corresponde a real')
+            super().__init__(
+                message='The old password provided does not match the real one'
+            )
 
     class UserIsUnderage(AppException):
         def __init__(self) -> None:
-            super().__init__(message='O usuário é menor de idade')
+            super().__init__(message='The user is underage')
