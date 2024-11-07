@@ -2,7 +2,6 @@ from collections.abc import Callable
 from datetime import date, datetime, timedelta, timezone
 from http import HTTPStatus
 from typing import Any
-from uuid import UUID, uuid4
 
 import jwt
 import pytest
@@ -134,8 +133,8 @@ async def test_when_try_to_create_an_user_with_email_from_existing_user_returns_
     assert response_data == {
         'name': 'UserAlreadyExists',
         'scope': 'UserException',
-        'kind': 'Conflict',
-        'message': f'O usuário {user.email} já existe',
+        'type': 'Conflict',
+        'message': f'The user {user.email} already exists',
         'status': HTTPStatus.CONFLICT,
     }
 
@@ -165,8 +164,8 @@ async def test_when_try_to_create_an_underage_user_returns_UNPROCESSABLE_ENTITY(
     assert response_data == {
         'name': 'UserIsUnderage',
         'scope': 'UserException',
-        'kind': 'UnprocessableEntity',
-        'message': 'O usuário é menor de idade',
+        'type': 'UnprocessableEntity',
+        'message': 'The user is underage',
         'status': HTTPStatus.UNPROCESSABLE_ENTITY,
     }
 
@@ -196,8 +195,8 @@ async def test_when_try_to_create_an_user_with_invalid_data_returns_BAD_RESQUEST
     assert response_data == {
         'name': 'InvalidDataSent',
         'scope': 'ApiValidationException',
-        'kind': 'BadRequest',
-        'message': 'Os dados enviados são inválidos',
+        'type': 'BadRequest',
+        'message': 'Invalid data sent',
         'detail': [
             {
                 'input': payload['username'],
@@ -223,7 +222,7 @@ async def test_when_try_to_create_an_user_with_invalid_data_returns_BAD_RESQUEST
                     'body',
                     'password',
                 ],
-                'message': 'Value error, A senha não tem os caracteres necessários',
+                'message': 'Value error, Password doesn\'t have the required characters',
                 'type': 'value_error',
             },
             {
@@ -232,7 +231,7 @@ async def test_when_try_to_create_an_user_with_invalid_data_returns_BAD_RESQUEST
                     'body',
                     'birth_date',
                 ],
-                'message': 'Value error, A data de nascimento é inválida',
+                'message': 'Value error, Invalid birth date',
                 'type': 'value_error',
             },
             {
@@ -307,8 +306,8 @@ async def test_when_try_to_get_user_info_without_jwt_token_returns_UNAUTHORIZED(
     assert response_data == {
         'name': 'MissingJwt',
         'scope': 'ApiSecurityException',
-        'kind': 'Unauthorized',
-        'message': 'Token JWT não fornecido',
+        'type': 'Unauthorized',
+        'message': 'JWT token not provided',
         'status': HTTPStatus.UNAUTHORIZED,
     }
 
@@ -339,8 +338,8 @@ async def test_when_try_to_get_user_info_with_jwt_token_with_non_existent_uuid_r
     assert response_data == {
         'name': 'UserNotFound',
         'scope': 'UserException',
-        'kind': 'Unauthorized',
-        'message': f'O usuário {non_existent_id} não foi encontrado',
+        'type': 'Unauthorized',
+        'message': f'The user {non_existent_id} wasn\'t found',
         'status': HTTPStatus.UNAUTHORIZED,
     }
 
@@ -366,8 +365,8 @@ async def test_when_try_to_get_user_info_with_jwt_token_with_invalid_sub_returns
     assert response_data == {
         'name': 'InvalidJwt',
         'scope': 'ApiSecurityException',
-        'kind': 'Unauthorized',
-        'message': 'Token JWT inválido',
+        'type': 'Unauthorized',
+        'message': 'Invalid JWT token',
         'status': HTTPStatus.UNAUTHORIZED,
     }
 
@@ -409,8 +408,8 @@ async def test_when_try_to_get_user_info_from_deactivated_user_returns_FORBIDDEN
     assert response_data == {
         'name': 'UserIsDeactivated',
         'scope': 'UserException',
-        'kind': 'Forbidden',
-        'message': f'O usuário {user.email} está desativado',
+        'type': 'Forbidden',
+        'message': f'The user {user.email} is deactivated',
         'status': HTTPStatus.FORBIDDEN,
     }
 
@@ -448,8 +447,8 @@ async def test_when_try_to_get_user_info_with_expired_jwt_token_returns_UNAUTHOR
     assert response_data == {
         'name': 'ExpiredJwt',
         'scope': 'ApiSecurityException',
-        'kind': 'Unauthorized',
-        'message': 'Token JWT expirado',
+        'type': 'Unauthorized',
+        'message': 'Expired JWT token',
         'status': HTTPStatus.UNAUTHORIZED,
     }
 
@@ -503,8 +502,8 @@ async def test_when_try_to_deactivate_user_without_jwt_token_returns_UNAUTHORIZE
     assert response_data == {
         'name': 'MissingJwt',
         'scope': 'ApiSecurityException',
-        'kind': 'Unauthorized',
-        'message': 'Token JWT não fornecido',
+        'type': 'Unauthorized',
+        'message': 'JWT token not provided',
         'status': HTTPStatus.UNAUTHORIZED,
     }
 
@@ -581,8 +580,8 @@ async def test_when_try_to_update_user_preferences_without_jwt_token_returns_UNA
     assert response_data == {
         'name': 'MissingJwt',
         'scope': 'ApiSecurityException',
-        'kind': 'Unauthorized',
-        'message': 'Token JWT não fornecido',
+        'type': 'Unauthorized',
+        'message': 'JWT token not provided',
         'status': HTTPStatus.UNAUTHORIZED,
     }
 
@@ -664,8 +663,8 @@ async def test_when_try_to_update_user_personal_data_without_jwt_token_returns_U
     assert response_data == {
         'name': 'MissingJwt',
         'scope': 'ApiSecurityException',
-        'kind': 'Unauthorized',
-        'message': 'Token JWT não fornecido',
+        'type': 'Unauthorized',
+        'message': 'JWT token not provided',
         'status': HTTPStatus.UNAUTHORIZED,
     }
 
@@ -703,8 +702,8 @@ async def test_when_try_to_update_user_personal_data_with_invalid_data_returns_B
     assert response_data == {
         'name': 'InvalidDataSent',
         'scope': 'ApiValidationException',
-        'kind': 'BadRequest',
-        'message': 'Os dados enviados são inválidos',
+        'type': 'BadRequest',
+        'message': 'Invalid data sent',
         'status': HTTPStatus.BAD_REQUEST,
         'detail': [
             {
@@ -732,7 +731,7 @@ async def test_when_try_to_update_user_personal_data_with_invalid_data_returns_B
                     'body',
                     'birth_date',
                 ],
-                'message': 'Value error, A data de nascimento é inválida',
+                'message': 'Value error, Invalid birth date',
                 'type': 'value_error',
             },
         ],
@@ -771,8 +770,8 @@ async def test_when_try_to_update_user_personal_data_with_underage_birth_date_re
     assert response_data == {
         'name': 'UserIsUnderage',
         'scope': 'UserException',
-        'kind': 'UnprocessableEntity',
-        'message': 'O usuário é menor de idade',
+        'type': 'UnprocessableEntity',
+        'message': 'The user is underage',
         'status': HTTPStatus.UNPROCESSABLE_ENTITY,
     }
 
@@ -852,8 +851,8 @@ async def test_when_try_to_update_user_password_without_jwt_token_returns_UNAUTH
     assert response_data == {
         'name': 'MissingJwt',
         'scope': 'ApiSecurityException',
-        'kind': 'Unauthorized',
-        'message': 'Token JWT não fornecido',
+        'type': 'Unauthorized',
+        'message': 'JWT token not provided',
         'status': HTTPStatus.UNAUTHORIZED,
     }
 
@@ -890,8 +889,8 @@ async def test_when_try_to_update_user_password_with_invalid_data_returns_BAD_RE
     assert response_data == {
         'name': 'InvalidDataSent',
         'scope': 'ApiValidationException',
-        'kind': 'BadRequest',
-        'message': 'Os dados enviados são inválidos',
+        'type': 'BadRequest',
+        'message': 'Invalid data sent',
         'status': HTTPStatus.BAD_REQUEST,
         'detail': [
             {
@@ -910,7 +909,7 @@ async def test_when_try_to_update_user_password_with_invalid_data_returns_BAD_RE
                 'type': 'value_error',
                 'loc': ['body', 'confirm_new_password'],
                 'input': 'Linux2005',
-                'message': 'Value error, A senha não tem os caracteres necessários',
+                'message': 'Value error, Password doesn\'t have the required characters',
             },
         ],
     }
@@ -948,8 +947,8 @@ async def test_when_try_to_update_user_password_with_old_password_field_that_doe
     assert response_data == {
         'name': 'OldPasswordDoesntMatch',
         'scope': 'UserException',
-        'kind': 'Forbidden',
-        'message': 'A senha antiga fornecida não corresponde a real',
+        'type': 'Forbidden',
+        'message': 'The old password provided does not match the real one',
         'status': HTTPStatus.FORBIDDEN,
     }
 
@@ -986,8 +985,8 @@ async def test_when_try_to_update_user_password_with_new_password_and_confirm_ne
     assert response_data == {
         'name': 'NewPasswordConfirmationMismatch',
         'scope': 'UserException',
-        'kind': 'BadRequest',
-        'message': 'A confirmação da nova senha não corresponde à senha fornecida',
+        'type': 'BadRequest',
+        'message': 'New password confirmation doesn\'t match the password provided',
         'status': HTTPStatus.BAD_REQUEST,
     }
 
@@ -1024,7 +1023,7 @@ async def test_when_try_to_update_user_password_with_new_password_equals_to_old_
     assert response_data == {
         'name': 'NewPasswordCantBeSameAsOld',
         'scope': 'UserException',
-        'kind': 'BadRequest',
-        'message': f'A nova senha do usuário {user.email} não pode ser igual à antiga',
+        'type': 'BadRequest',
+        'message': f'The user\'s new password {user.email} can\'t be the same as the old one',
         'status': HTTPStatus.BAD_REQUEST,
     }
