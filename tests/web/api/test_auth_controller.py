@@ -102,8 +102,8 @@ async def test_when_try_to_authenticate_user_with_invalid_credentials_returns_UN
     assert response_data == {
         'name': 'InvalidCredentials',
         'scope': 'AuthException',
-        'kind': 'Unauthorized',
-        'message': 'Email ou senha inválidos',
+        'type': 'Unauthorized',
+        'message': 'Invalid email or password',
         'status': HTTPStatus.UNAUTHORIZED,
     }
 
@@ -148,8 +148,8 @@ async def test_when_try_to_authenticate_user_with_wrong_email_returns_UNAUTHORIZ
     assert response_data == {
         'name': 'InvalidCredentials',
         'scope': 'AuthException',
-        'kind': 'Unauthorized',
-        'message': 'Email ou senha inválidos',
+        'type': 'Unauthorized',
+        'message': 'Invalid email or password',
         'status': HTTPStatus.UNAUTHORIZED,
     }
 
@@ -193,8 +193,8 @@ async def test_when_try_to_authenticate_user_with_wrong_password_returns_UNAUTHO
     assert response_data == {
         'name': 'InvalidCredentials',
         'scope': 'AuthException',
-        'kind': 'Unauthorized',
-        'message': 'Email ou senha inválidos',
+        'type': 'Unauthorized',
+        'message': 'Invalid email or password',
         'status': HTTPStatus.UNAUTHORIZED,
     }
 
@@ -239,8 +239,8 @@ async def test_when_try_to_authenticate_a_deactivated_user_returns_FORBIDDEN(
     assert response_data == {
         'name': 'UserIsDeactivated',
         'scope': 'UserException',
-        'kind': 'Forbidden',
-        'message': f'O usuário {user.email} está desativado',
+        'type': 'Forbidden',
+        'message': f'The user {user.email} is deactivated',
         'status': HTTPStatus.FORBIDDEN,
     }
 
@@ -265,7 +265,7 @@ async def test_when_try_to_authenticate_user_with_invalid_data_returns_UNAUTHORI
     assert response_data == {
         'name': 'InvalidDataSent',
         'scope': 'ApiValidationException',
-        'message': 'Os dados enviados são inválidos',
+        'message': 'Invalid data sent',
         'detail': [
             {
                 'type': 'value_error',
@@ -280,6 +280,6 @@ async def test_when_try_to_authenticate_user_with_invalid_data_returns_UNAUTHORI
                 'message': 'String should have at least 8 characters',
             },
         ],
-        'kind': 'BadRequest',
+        'type': 'BadRequest',
         'status': HTTPStatus.BAD_REQUEST,
     }
