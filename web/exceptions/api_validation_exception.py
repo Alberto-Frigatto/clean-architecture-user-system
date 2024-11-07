@@ -8,4 +8,4 @@ class ApiValidationException:
         def __init__(
             self, detail: Sequence[Any] | dict[str, Any] | None = None
         ) -> None:
-            super().__init__(message='Os dados enviados são inválidos', detail=detail)
+            super().__init__(message='Invalid data sent', detail=detail)
